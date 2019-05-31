@@ -5,7 +5,6 @@ This file contains the routes defined by the application.
 from flask import send_from_directory
 
 from redirectioneaza.controllers.account_management import *
-from redirectioneaza.controllers.admin import *
 from redirectioneaza.controllers.api import *
 from redirectioneaza.controllers.my_account import *
 from redirectioneaza.controllers.ngo import *
@@ -60,34 +59,10 @@ register_route('/api/ngo/upload-url', handler=GetUploadUrl, name='api-ngo-upload
 register_route('/api/ngo/form/<ngo_url>', handler=GetNgoForm, name='api-ngo-form-url')
 register_route('/api/ngos', handler=NgosApi, name='api-ngos')
 
-# # ADMIN HANDLERS
-register_route('/admin', handler=AdminHandler, name='admin')
-register_route('/admin/conturi', handler=UserAccounts, name='admin-users')
-register_route('/admin/campanii', handler=SendCampaign, name='admin-campanii')
-register_route('/admin/ong-nou', handler=AdminNewNgoHandler, name='admin-ong-nou')
-register_route('/admin/<ngo_url>', handler=AdminNgoHandler, name='admin-ong')
-
 register_route('/<ngo_url>', handler=NgoHandler, name="ngo-url")
 register_route('/catre/<ngo_url>', handler=NgoHandler)
 register_route('/<ngo_url>/doilasuta', handler=TwoPercentHandler, name="twopercent")
 register_route('/<ngo_url>/doilasuta/succes', handler=DonationSucces, name="ngo-twopercent-success")
-
-
-# TODO: Extend and rethink Error Handlers. Add real templates for them
-
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return redirect(url_for('index'))
-
-@app.errorhandler(401)
-def page_not_found(e):
-    return redirect(url_for('index'))
-
-
-@app.errorhandler(500)
-def page_not_found(e):
-    return redirect(url_for('index'))
 
 
 @app.route('/storage/<filename>', defaults={'folder': None})
