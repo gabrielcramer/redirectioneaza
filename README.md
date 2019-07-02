@@ -2,11 +2,11 @@
 
 [![GitHub contributors](https://img.shields.io/github/contributors/code4romania/redirectioneaza.svg?style=for-the-badge)](https://github.com/code4romania/redirectioneaza/graphs/contributors) [![GitHub last commit](https://img.shields.io/github/last-commit/code4romania/redirectioneaza.svg?style=for-the-badge)](https://github.com/code4romania/redirectioneaza/commits/master) [![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-brightgreen.svg?style=for-the-badge)](https://opensource.org/licenses/MPL-2.0)
 
-* tax form #230 made easy
-* digital solution for an offline process
-* as simple and as efficient as possible
-* helps you compare and choose who to support
-* helps NGOs reach their public and keep track of their supporters
+- tax form #230 made easy
+- digital solution for an offline process
+- as simple and as efficient as possible
+- helps you compare and choose who to support
+- helps NGOs reach their public and keep track of their supporters
 
 [See the project live](http://redirectioneaza.ro/)
 
@@ -44,6 +44,28 @@ Bower
 
 PostgreSQL / SQLAlchemy
 
+## Run it locally
+
+In order to run this project locally, follow these steps:
+
+1. Clone the repo into a folder  
+   `git clone https://github.com/code4romania/redirectioneaza`
+2. Set up a virtual environment and activate it  
+   `virtualenv -p python3 venv && source venv/bin/activate`
+3. Install the requirements  
+   `pip install -r requirements.txt`
+4. Install front-end development assets  
+   `bower install`
+5. Initialize the database and populate with dummy data  
+
+`python3 manage.py init_db`  
+`python3 manage.py load_dummy`
+
+6. To start the application, run  
+   `python3 app.py`
+
+The app will be ran by default on `localhost:5000`.
+
 ## App structure
 
 The entry point of the app is `app.py`. 
@@ -51,20 +73,20 @@ All the routes are defined in `redirectioneaza\routes.py`.
 
 The application itself is located in the folder `redirectioneaza`.
 
-
 Its main components are
-* `controllers`  this module contains the views for each route
-* `handlers` this module contains the following helpers:
-    * `pdf` the logic for creating the pdf
-    * `email` a small wrapper over SendGrid
-    * `base` contains the base view handler from which all views should inherit
-    * `captcha` the logic behind captcha validation on pages with forms
-    * `utils` utilities  
-* `static` all the static files: css, js, images
-* `templates` all the html files + email templates. New html pages should extend `base.html`
-* `config.py` configuration data
-* `core.py` defines the core objects such as app, db and login_manager
-* `routes.py` defines all the routes used by the app
+
+- `controllers`  this module contains the views for each route
+- `handlers` this module contains the following helpers:
+  - `pdf` the logic for creating the pdf
+  - `email` a small wrapper over SendGrid
+  - `base` contains the base view handler from which all views should inherit
+  - `captcha` the logic behind captcha validation on pages with forms
+  - `utils` utilities  
+- `static` all the static files: css, js, images
+- `templates` all the html files + email templates. New html pages should extend `base.html`
+- `config.py` configuration data
+- `core.py` defines the core objects such as app, db and login_manager
+- `routes.py` defines all the routes used by the app
 
 ### Bulding new handlers
 
@@ -73,24 +95,10 @@ New handlers should extend `BaseHandler` from `handlers.base`.
 The path to the html file should be set as `template_name`. The app looks in the `views` folder for it.
 To send props to the view, use the dict `self.template_values`.
 
-## Deployment
-
-1. Clone the repo into a folder: `git clone https://github.com/code4romania/redirectioneaza`
-2. Set up a virtual env `virtualenv venv` and activate it `source venv/bin/activate`
-3. Install the requirements : `pip install -r requirements.txt`
-4. Install front-end development assets `bower install`
-5. Initialize the database and populate with dummy data:
-
-`python3 manage.py init_db` then
-`python3 manage.py load_dummy`
-
-6.  To run the application, run:
-`python3 app.py`
-
-The app will be ran by default on `localhost:5000`.
-
 ### CSS
+
 The app uses `LESS`. To compile the CSS, run:
+
 ```sh
 cd ./static/
 lessc css/main.less > css/main.css --clean-css="--s1 --advanced --compatibility=ie8"
@@ -104,22 +112,25 @@ For database migrations, use the commands for [Flask-Migrate](https://flask-migr
 ### Tests
 
 To run tests:
+
 1. `cd tests`
 2. `pytest`
 
 This will run both unit and selenium/integration testing. To run a particular set of tests or a particular tests run `pytest test_app` and e.g. `pytest test_app.py::test_name` respectively.
 
 ### Read more
+
 You can read more about the frameworks used by the app:
-* [flask](http://flask.pocoo.org/)
-* [jinja2](http://jinja.pocoo.org/docs/dev/templates/)
+
+- [flask](http://flask.pocoo.org/)
+- [jinja2](http://jinja.pocoo.org/docs/dev/templates/)
 
 ## Feedback
 
-* Request a new feature on GitHub.
-* Vote for popular feature requests.
-* File a bug in GitHub Issues.
-* Email us with other feedback [contact@code4.ro](mailto:contact@code.ro)
+- Request a new feature on GitHub.
+- Vote for popular feature requests.
+- File a bug in GitHub Issues.
+- Email us with other feedback [contact@code4.ro](mailto:contact@code.ro)
 
 ## License
 
