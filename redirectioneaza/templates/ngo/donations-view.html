@@ -7,7 +7,7 @@
     {% for key, value in donors.items() %}
 
         {% if value or key == current_year %}
-            <p>{{ key }}</p>
+            <p>{{ key }} • <a class="btn btn-default btn-xs" href="{{url_for('get-donors-list',year=key)}}">Export CSV</a></p>
             <table class="table">
                 <thead>
                     <tr>

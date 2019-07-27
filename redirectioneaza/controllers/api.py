@@ -2,15 +2,16 @@ import os
 from datetime import datetime
 from hashlib import sha1, md5
 from logging import info
+from sqlalchemy.sql.expression import extract
 
-from flask import abort, url_for, jsonify, request, redirect
+from flask import abort, url_for, jsonify, request, redirect, Response
 from flask_login import current_user, login_required
 
 from redirectioneaza import db, app
-from redirectioneaza.config import DEFAULT_NGO_LOGO
+from redirectioneaza.config import DEFAULT_NGO_LOGO, START_YEAR
 from redirectioneaza.handlers.base import BaseHandler
 from redirectioneaza.handlers.pdf import create_pdf
-from redirectioneaza.models import NgoEntity
+from redirectioneaza.models import NgoEntity, Donor
 
 
 def check_ngo_url(ngo_url=None):
@@ -126,3 +127,37 @@ class GetUploadUrl(BaseHandler):
         return jsonify({
             "file_urls": file_urls
         })
+
+
+class GetDonorList(BaseHandler):
+
+    @login_required
+    def get(self, year):
+        if int(year) > START_YEAR:
+            user = current_user
+            ngo = user.ngo
+            donors = Donor.query.filter(extract('year',Donor.date_created)==year, Donor.ngo==ngo)
+
+            donors_data = ['first_name,last_name,county,city,email,tel']
+            for donor in donors:
+                data = []
+
+                data.append(donor.first_name)
+                data.append(donor.last_name)
+
+                data.append(donor.county)
+                data.append(donor.city)
+
+                if not donor.anonymous:
+                    data.append(donor.email)
+                    data.append(donor.tel)
+
+                else:
+                    data.append('')
+                    data.append('')
+
+                donors_data.append(",".join(data))
+
+            return Response("\n".join(donors_data), mimetype='text/csv', headers={"Content-Disposition":f"attachment;filename={year}.csv"})
+        else:
+            return abort(404)
