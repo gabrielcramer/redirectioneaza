@@ -95,6 +95,25 @@ New handlers should extend `BaseHandler` from `handlers.base`.
 The path to the html file should be set as `template_name`. The app looks in the `views` folder for it.
 To send props to the view, use the dict `self.template_values`.
 
+<<<<<<< Updated upstream
+=======
+## Deployment
+
+1. Clone the repo into a folder: `git clone https://github.com/code4romania/redirectioneaza`
+2. Set up a virtual env `virtualenv -p python3 venv` and activate it `source venv/bin/activate`
+3. Install the requirements : `pip install -r requirements.txt`
+4. Install front-end development assets `bower install`
+5. Initialize the database and populate with dummy data:
+
+`python3 manage.py init_db` then
+`python3 manage.py load_dummy`
+
+6.  To run the application, run:
+`python3 app.py`
+
+The app will be ran by default on `localhost:5000`.
+
+>>>>>>> Stashed changes
 ### CSS
 
 The app uses `LESS`. To compile the CSS, run:
