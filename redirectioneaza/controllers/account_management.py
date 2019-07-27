@@ -28,11 +28,11 @@ class LoginHandler(BaseHandler):
 
         self.template_values["title"] = "Contul meu"
 
-        if current_user.is_authenticated and not current_user.is_admin:
-            return redirect(url_for('contul-meu'))
-
-        elif current_user.is_authenticated and current_user.is_admin:
-            return redirect(url_for('admin.index'))
+        if current_user.is_authenticated:
+            if current_user.is_admin:
+                return redirect(url_for('admin.index'))
+            else:
+                return redirect(url_for('contul-meu'))
 
         return render_template(self.template_name, **self.template_values)
 
@@ -65,11 +65,11 @@ class LoginHandler(BaseHandler):
 
             login_user(_user)
 
-            if current_user.is_authenticated and not current_user.is_admin:
-                return redirect(url_for('contul-meu'))
-
-            elif current_user.is_authenticated and current_user.is_admin:
-                return redirect(url_for('admin.index'))
+            if current_user.is_authenticated:
+                if current_user.is_admin:
+                    return redirect(url_for('admin.index'))
+                else:
+                    return redirect(url_for('contul-meu'))
 
         else:
             warning('Invalid email or password: {0}'.format(email))

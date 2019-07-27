@@ -221,51 +221,12 @@ class NgoDetailsHandler(BaseHandler):
                         self.template_values["unique"] = False
                         return render_template(self.template_name, **self.template_values)
 
-                if user.is_admin:
-                    ngo.verified = request.form.get('ong-verificat') == "on"
-                    ngo.active = request.form.get('ong-activ') == "on"
-
-                    # if we want to change the url
-                    if ong_url != ngo.form_url:
-
-                        is_ngo_url_available = check_ngo_url(ong_url)
-
-                        if not is_ngo_url_available:
-                            self.template_values["errors"] = url_taken
-                            return render_template(self.template_name, **self.template_values)
-
-                        # new_key = Key(NgoEntity, ong_url)
-
-                        # # replace all the donors key
-                        # donors = Donor.query(Donor.ngo == ngo.key).fetch()
-                        # if donors:
-                        #     for donor in donors:
-                        #         donor.ngo = new_key 
-                        #         donor.put()
-
-                        # # replace the users key
-                        # ngos_user = User.query(Donor.ngo == ngo.key).get()
-                        # if ngos_user:
-                        #     ngos_user.ngo = new_key
-                        #     ngos_user.put()
-
-                        # # copy the old model
-                        # new_ngo = ngo
-                        # # delete the old model
-                        # ngo.key.delete()
-                        # # add a new key
-                        # new_ngo.key = new_key
-
-                        # ngo = new_ngo
-
                 # save the changes
                 db.session.merge(ngo)
                 db.session.commit()
 
-                if user.is_admin:
-                    return redirect(url_for("admin-ong", ngo_url=ong_url))
-                else:
-                    return redirect(url_for("asociatia"))
+                return redirect(url_for("asociatia"))
+
 
         # create a new ngo entity
         # do this before validating the url, cif and back account because if we have errors 
@@ -309,34 +270,5 @@ class NgoDetailsHandler(BaseHandler):
         else:
             self.template_values["errors"] = True
 
-        if user.is_admin:
-
-            # a list of email addresses
-            new_ngo.other_emails = [s.strip() for s in request.form.get('alte-adrese-email', "").split(",")]
-
-            db.session.merge(new_ngo)
-            db.session.commit()
-
-            return redirect(url_for("admin-ong", ngo_url=ong_url))
-        else:
-            # link this user with the ngo
-            # the ngo has a key even though we haven't saved it, we offered it an unique id
-            # user.ngo = new_ngo.key
-
-            # # use put_multi to save rpc calls
-            # put_multi([new_ngo, user])
-
-            # try:
-            #     subject = "O noua organizatie s-a inregistrat"
-            #     values = {
-            #         "ngo": ong_nume,
-            #         "link": request.form.host + '/' + new_ngo.key.id()
-            #     }
-            #     body = self.jinja_enviroment.get_template("email/admin/new-ngo.txt").render(values)
-            #     # info(body)
-            #     mail.send_mail(sender=CONTACT_EMAIL_ADDRESS, to="donezsieu@gmail.com", subject=subject, body=body)
-            # except Exception as e:
-            #     info(e)
-
-            # do a refresh
-            return redirect(url_for("contul-meu"))
+        # do a refresh
+        return redirect(url_for("contul-meu"))
