@@ -10,7 +10,7 @@ from flask_login import current_user
 
 from redirectioneaza import app, db
 from redirectioneaza.contact_data import LIST_OF_COUNTIES
-from redirectioneaza.models import NgoEntity, User, Donor
+from redirectioneaza.models import NgoEntity, User, Donor, Domain
 
 """
 Handlers  for admin routing
@@ -149,14 +149,16 @@ class NgoEntityAdmin(ModelView):
                      'active': 'Active?',
                      'allow_upload': 'Allow upload?',
                      'cif': 'CIF',
+                     'domain.name': 'Domain',
                      'account': 'Bank Account No.'
                      }
 
-    column_list = ('name', 'description', 'email', 'county', 'num_donors')
+
+    column_list = ('name', 'description', 'email', 'county', 'num_donors', 'domain.name')
 
     column_searchable_list = ('name', 'description', 'email', 'website', 'county')
 
-    form_excluded_columns = ('donors', 'tags')
+    form_excluded_columns = ('donors')
 
     def _url_formatter(view, context, model, name):
         if model.email:
@@ -216,6 +218,27 @@ class DonorAdmin(ModelView):
         return current_user.is_admin if current_user.is_authenticated else False
 
 
+class DomainAdmin(ModelView):
+    """
+    Defines the DonorAdmin administration page
+    """
+
+    can_create = True
+    can_edit = True
+
+    column_labels = {'name': 'Domain name'}
+
+    form_excluded_columns = ('ngos')
+
+    def is_accessible(self):
+        """
+        Function to check if user has access to certain page
+        :return: True if accessible, False if not
+        """
+
+        return current_user.is_admin if current_user.is_authenticated else False
+
+
 admin = Admin(app,
               index_view=CustomAdminIndexView(name='Home', template='admin/siteadmin.html'),
               template_mode='bootstrap3')
@@ -223,6 +246,8 @@ admin = Admin(app,
 admin.add_view(UserAdmin(User, db.session, name='Users'))
 admin.add_view(DonorAdmin(Donor, db.session, name='Donors'))
 admin.add_view(NgoEntityAdmin(NgoEntity, db.session, name='NGOs'))
+admin.add_view(DomainAdmin(Domain, db.session, name='Domain'))
+
 # TODO:  Find a way to replace hardcoded url with url_for.
 admin.add_link(MenuLink(name='Back to the site', category='', url='/'))
 admin.add_link(MenuLink(name='Logout', category='', url='/logout'))

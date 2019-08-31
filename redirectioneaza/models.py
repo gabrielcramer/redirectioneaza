@@ -15,42 +15,40 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from redirectioneaza import db
 from redirectioneaza.config import DEFAULT_NGO_LOGO
 
-ngo_tags = db.Table('ngo_entity_tag', db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-                    db.Column('ngoentity_id', db.Integer, db.ForeignKey('ngo_entity.id')))
-
-
-class Tag(db.Model):
+class Domain(db.Model):
     """
-    Defines the Tag object.
+    Defines the Domain object.
     """
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False, unique=True, index=True)
 
+    ngos = db.relationship('NgoEntity', backref='domain')
+
     @staticmethod
     def get_or_create(name):
         """
-        Gets or creates a tag with a given name.
-        :param name: string, name of the tag to be found or created if it doesn't exist.
-        :return:  Tag
+        Gets or creates a domain with a given name.
+        :param name: string, name of the domain to be found or created if it doesn't exist.
+        :return:  Domain
         """
         try:
-            return Tag.query.filter_by(name=name).one()
+            return Domain.query.filter_by(name=name).one()
         except NoResultFound:
-            return Tag(name=name)
+            return Domain(name=name)
 
     @staticmethod
     def all():
         """
-        Returns all the tags.
-        :return: Tag(s)
+        Returns all the domains.
+        :return: Domain(s)
         """
-        return Tag.query.all()
+        return Domain.query.all()
 
     def __str__(self):
-        return "<Tag '{}'>".format(self.name)
+        return "<Domain '{}'>".format(self.name)
 
     def __repr__(self):
-        return "<Tag '{}'>".format(self.name)
+        return "<Domain '{}'>".format(self.name)
 
 
 # to the list of counties add the whole country
@@ -93,8 +91,9 @@ class NgoEntity(db.Model):
     # url to the ngo's 2% form, that contains only the ngo's details
     form_url = db.Column(db.String(256), index=True)
 
-    # # tags for the
-    tags = db.relationship('Tag', secondary=ngo_tags)
+    # domain of activity for the ngo
+    # domains = db.relationship('Domain', secondary=ngo_domains)
+    domain_id = db.Column(db.Integer, db.ForeignKey('domain.id'))
 
     # meta data
     date_created = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

@@ -12,7 +12,7 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, prompt_bool
 
 from redirectioneaza import app, db
-from redirectioneaza.models import Donor, NgoEntity, User
+from redirectioneaza.models import Donor, NgoEntity, User, Domain
 
 manager = Manager(app)
 migrate = Migrate(app, db)
@@ -25,12 +25,17 @@ def load_dummy_data():
     """
     Inserts dummy data entities for development purposes.
     """
+
+    _domain = Domain(name='Educatie')
+    db.session.add(_domain)
+
     _ngo = NgoEntity(name='TEST NGO GOOD GUYS',
                      url="test-ngo-good-guys",
                      date_created=datetime.utcnow(),
                      description='best guys in the world',
                      website='http://www.goodguys1111.ro',
                      account='RO57NQFX2258814815293591',
+                     domain=_domain,
                      cif='1234567',
                      address='Str. Toamnei 19'
                      )
