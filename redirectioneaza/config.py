@@ -96,3 +96,7 @@ CAPTCHA_PRIVATE_KEY = environ.get(
     'CAPTCHA_PRIVATE_KEY') if PRODUCTION else "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 CAPTCHA_POST_PARAM = "g-recaptcha-response"
+
+AWS_ACCESS_KEY_ID = 'AKIAJSKWPCNXLQR5XP4A'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_REGION = 'eu-west-1'

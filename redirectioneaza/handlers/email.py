@@ -6,12 +6,14 @@ This file contains the Emailing logic. Emails will be logged as message in the c
 import os
 from logging import info, warning
 
+import boto3
+from botocore.exceptions import ClientError
 import sendgrid
 from flask_mail import Message
 from sendgrid.helpers.mail import *
 
 from redirectioneaza import mail
-from redirectioneaza.config import DEV
+from redirectioneaza.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, DEV
 from redirectioneaza.contact_data import CONTACT_EMAIL_ADDRESS
 
 
@@ -155,3 +157,53 @@ class EmailManager:
             warning(e)
 
             return False
+
+    @staticmethod
+    def send_ses_email(**kwargs):
+        receiver = kwargs.get("receiver")
+        sender = kwargs.get("sender", EmailManager.default_sender)
+        subject = kwargs.get("subject")
+
+        # email content
+        text_template = kwargs.get("text_template")
+        html_template = kwargs.get("html_template", "")
+
+        client = boto3.client(
+            'ses',
+            region_name=AWS_REGION,
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        )
+
+        try:
+            # Provide the contents of the email.
+            response = client.send_email(
+                Destination={
+                    'ToAddresses': [
+                        receiver,
+                    ],
+                },
+                Message={
+                    'Body': {
+                        'Html': {
+                            'Charset': 'utf-8',
+                            'Data': html_template,
+                        },
+                        'Text': {
+                            'Charset': 'utf-8',
+                            'Data': text_template,
+                        },
+                    },
+                    'Subject': {
+                        'Charset': 'utf-8',
+                        'Data': subject,
+                    },
+                },
+                Source=sender,
+            )
+        # Display an error if something goes wrong.
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+        else:
+            print("Email sent! Message ID:"),
+            print(response['MessageId'])
