@@ -4,11 +4,13 @@ This file contains the routes defined by the application.
 
 from flask import send_from_directory
 
+from redirectioneaza.config import DEV
 from redirectioneaza.controllers.account_management import *
 from redirectioneaza.controllers.api import *
 from redirectioneaza.controllers.my_account import *
 from redirectioneaza.controllers.ngo import *
 from redirectioneaza.controllers.site import *
+from redirectioneaza.handlers.storage import retrieve_file_from_s3
 from . import app
 
 
@@ -76,7 +78,11 @@ def storage(folder, filename):
     :param filename:
     :return:
     """
-    if folder:
-        return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], folder), filename)
+
+    if DEV:
+        if folder:
+            return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], folder), filename)
+        else:
+            return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER']), filename)
     else:
-        return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER']), filename)
+        retrieve_file_from_s3(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], folder), filename))

@@ -1,3 +1,4 @@
+import io
 import os
 import tempfile
 from datetime import datetime
@@ -8,6 +9,9 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
+
+from redirectioneaza.config import DEV
+from redirectioneaza.handlers.storage import save_file_to_s3
 
 abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 font_path = abs_path + "/static/font/opensans.ttf"
@@ -238,7 +242,7 @@ def create_pdf(person, ong):
 
     # packet = StringIO.StringIO()
     # we could also use StringIO
-    packet = tempfile.NamedTemporaryFile(mode='w+b', delete=False, dir=f'{abs_path}/storage/')
+    packet = tempfile.NamedTemporaryFile(mode='w+b', delete=not DEV, dir=f'{abs_path}/storage/')
 
     c = canvas.Canvas(packet, A4)
     width, height = A4
@@ -276,6 +280,8 @@ def create_pdf(person, ong):
     # go to the beginning of the file
     packet.seek(0)
     # packet.type = "application/pdf"
+
+    save_file_to_s3(packet, packet.name.split('/')[-1])
 
     packet.close()
 
