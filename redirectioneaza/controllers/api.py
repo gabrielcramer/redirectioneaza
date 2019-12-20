@@ -8,9 +8,10 @@ from flask import abort, url_for, jsonify, request, redirect, Response
 from flask_login import current_user, login_required
 
 from redirectioneaza import db, app
-from redirectioneaza.config import DEFAULT_NGO_LOGO, START_YEAR
+from redirectioneaza.config import DEFAULT_NGO_LOGO, DEV, START_YEAR
 from redirectioneaza.handlers.base import BaseHandler
 from redirectioneaza.handlers.pdf import create_pdf
+from redirectioneaza.handlers.storage import save_file_to_s3
 from redirectioneaza.models import NgoEntity, Donor
 
 
@@ -116,10 +117,13 @@ class GetUploadUrl(BaseHandler):
 
             file_url = os.path.join(user_folder, filename)
 
-            if not os.path.isdir(user_folder):
+            if not os.path.isdir(user_folder) and DEV:
                 os.mkdir(user_folder)
 
-            uploaded_file.save(file_url)
+            if DEV:
+                uploaded_file.save(file_url)
+            else:
+                save_file_to_s3(uploaded_file, file_url)
 
             if file_url:
                 file_urls.append(file_url)

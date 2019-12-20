@@ -12,6 +12,7 @@ from reportlab.pdfgen import canvas
 
 from redirectioneaza.config import DEV
 from redirectioneaza.handlers.storage import save_file_to_s3
+from redirectioneaza import app
 
 abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 font_path = abs_path + "/static/font/opensans.ttf"
@@ -281,7 +282,7 @@ def create_pdf(person, ong):
     packet.seek(0)
     # packet.type = "application/pdf"
 
-    save_file_to_s3(packet, packet.name.split('/')[-1])
+    save_file_to_s3(packet, os.path.join(app.config['UPLOAD_FOLDER'], packet.name.split('/')[-1]))
 
     packet.close()
 
