@@ -134,7 +134,7 @@ class Donor(db.Model):
     city = db.Column(db.String(256), index=True)
     county = db.Column(db.String(256), index=True)
 
-    email = db.Column(db.String(120), unique=True, index=True)
+    email = db.Column(db.String(120), index=True)
     tel = db.Column(db.String(256), index=True)
 
     anonymous = db.Column(db.Boolean, default=True)

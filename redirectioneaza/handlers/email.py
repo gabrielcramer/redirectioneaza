@@ -13,7 +13,7 @@ from flask_mail import Message
 from sendgrid.helpers.mail import *
 
 from redirectioneaza import mail
-from redirectioneaza.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, DEV
+from redirectioneaza.config import DEV, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, DEV
 from redirectioneaza.contact_data import CONTACT_EMAIL_ADDRESS
 
 
@@ -37,13 +37,20 @@ class EmailManager:
 
         try:
 
-            response = EmailManager.send_sendgrid_email(**kwargs)
+            # in development do not send emails, just log the content
+            if DEV:
+                text_template = kwargs.get("text_template")
+                info(text_template)
+                return True
+
+            # send with amazon ses
+            response = EmailManager.send_ses_email(**kwargs)
 
             # if False then the send failed
             if response is False:
 
-                # try flask mail API
-                response = EmailManager.send_flask_email(**kwargs)
+                # try sendgrid
+                response = EmailManager.send_sendgrid_email(**kwargs)
 
                 # if this doesn't work either, give up
                 if response is False:
@@ -59,6 +66,66 @@ class EmailManager:
 
             warning(e)
             return False
+
+    @staticmethod
+    def send_ses_email(**kwargs):
+        receiver = kwargs.get("receiver")
+        sender = kwargs.get("sender", EmailManager.default_sender)
+        subject = kwargs.get("subject")
+
+        # create receiver and sender addresses
+        receiver = '{} <{}>'.format(receiver['name'], receiver['email'])
+        sender = '{} <{}>'.format(sender['name'], sender['email'])
+
+        # email content
+        text_template = kwargs.get("text_template")
+        html_template = kwargs.get("html_template", "")
+
+        try:
+            client = boto3.client(
+                'ses',
+                region_name=AWS_REGION,
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            )
+
+            body = {
+                'Text': {
+                    'Charset': 'utf-8',
+                    'Data': text_template,
+                }
+            }
+
+            if html_template:
+                body['Html'] = {
+                    'Charset': 'utf-8',
+                    'Data': html_template,
+                }
+
+            # Provide the contents of the email.
+            response = client.send_email(
+                Destination={
+                    'ToAddresses': [
+                        receiver,
+                    ],
+                },
+                Message={
+                    'Body': body,
+                    'Subject': {
+                        'Charset': 'utf-8',
+                        'Data': subject,
+                    },
+                },
+                Source=sender,
+            )
+        # Display an error if something goes wrong.
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+            return False
+        else:
+            print("Email sent! Message ID:"),
+            print(response['MessageId'])
+            return True
 
     @staticmethod
     def send_sendgrid_email(**kwargs):
@@ -84,8 +151,6 @@ class EmailManager:
 
         sender = Email(sender["email"], sender["name"])
         receiver = Email(receiver["email"], receiver["name"])
-
-        info(text_template)
 
         text_content = Content("text/plain", text_template)
 
@@ -157,53 +222,3 @@ class EmailManager:
             warning(e)
 
             return False
-
-    @staticmethod
-    def send_ses_email(**kwargs):
-        receiver = kwargs.get("receiver")
-        sender = kwargs.get("sender", EmailManager.default_sender)
-        subject = kwargs.get("subject")
-
-        # email content
-        text_template = kwargs.get("text_template")
-        html_template = kwargs.get("html_template", "")
-
-        client = boto3.client(
-            'ses',
-            region_name=AWS_REGION,
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        )
-
-        try:
-            # Provide the contents of the email.
-            response = client.send_email(
-                Destination={
-                    'ToAddresses': [
-                        receiver,
-                    ],
-                },
-                Message={
-                    'Body': {
-                        'Html': {
-                            'Charset': 'utf-8',
-                            'Data': html_template,
-                        },
-                        'Text': {
-                            'Charset': 'utf-8',
-                            'Data': text_template,
-                        },
-                    },
-                    'Subject': {
-                        'Charset': 'utf-8',
-                        'Data': subject,
-                    },
-                },
-                Source=sender,
-            )
-        # Display an error if something goes wrong.
-        except ClientError as e:
-            print(e.response['Error']['Message'])
-        else:
-            print("Email sent! Message ID:"),
-            print(response['MessageId'])
