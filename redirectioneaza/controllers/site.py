@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import render_template
 
-from redirectioneaza.config import DEFAULT_NGO_LOGO
+from redirectioneaza.config import DEFAULT_NGO_LOGO, DONATION_LIMIT
 from redirectioneaza.handlers.base import BaseHandler
 from redirectioneaza.models import NgoEntity
 
@@ -20,6 +20,7 @@ class HomePage(BaseHandler):
         _ngos = NgoEntity.query.limit(4).all()
 
         self.template_values["ngos"] = _ngos
+        self.template_values['limit'] = DONATION_LIMIT
         self.template_values["DEFAULT_NGO_LOGO"] = DEFAULT_NGO_LOGO
 
         # render a response

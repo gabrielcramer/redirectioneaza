@@ -5,7 +5,7 @@ from flask import render_template, url_for, request, redirect
 from flask_login import login_required, current_user
 
 from redirectioneaza import db
-from redirectioneaza.config import START_YEAR
+from redirectioneaza.config import START_YEAR, DONATION_LIMIT
 from redirectioneaza.contact_data import LIST_OF_COUNTIES
 from redirectioneaza.handlers.base import BaseHandler
 from redirectioneaza.models import NgoEntity, Donor
@@ -60,9 +60,7 @@ class MyAccountHandler(BaseHandler):
             self.template_values["current_year"] = now.year
             self.template_values["donors"] = grouped_donors
 
-            can_donate = True
-            if now.month > 5 or now.month == 5 and now.day > 25:
-                can_donate = False
+            can_donate = not now.date() > DONATION_LIMIT
 
             self.template_values["can_donate"] = can_donate
 

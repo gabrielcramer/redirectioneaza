@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from flask import redirect, render_template, url_for, abort, request, session, jsonify
 
 from redirectioneaza import db, app
-from redirectioneaza.config import DEV, DEFAULT_NGO_LOGO
+from redirectioneaza.config import DEV, DEFAULT_NGO_LOGO, DONATION_LIMIT
 from redirectioneaza.contact_data import ANAF_OFFICES, LIST_OF_COUNTIES
 from redirectioneaza.handlers.base import BaseHandler
 from redirectioneaza.handlers.captcha import submit
@@ -49,6 +49,7 @@ class TwoPercentHandler(BaseHandler):
         ngo.logo = ngo.logo if ngo.logo else DEFAULT_NGO_LOGO
         self.template_values["ngo"] = ngo
         self.template_values["counties"] = LIST_OF_COUNTIES
+        self.template_values['limit'] = DONATION_LIMIT
 
         # the ngo website
         ngo_website = ngo.website if ngo.website else None
@@ -89,9 +90,7 @@ class TwoPercentHandler(BaseHandler):
             self.template_values["ngo_website"] = None
 
         now = datetime.datetime.now()
-        can_donate = True
-        # if now.month > 3 or (now.month == 3 and now.day > 15):
-        #     can_donate = False
+        can_donate = not now.date() > DONATION_LIMIT
 
         self.template_values["can_donate"] = can_donate
 
@@ -258,6 +257,7 @@ class DonationSucces(BaseHandler):
         self.template_values["ngo"] = NgoEntity.query.filter_by(url=ngo_url).first()
         self.template_values["donor"] = _donor
         self.template_values["title"] = "Donatie 2% - succes"
+        self.template_values['limit'] = DONATION_LIMIT
 
         # county = _donor.county.lower()
         # self.template_values["anaf"] = ANAF_OFFICES.get(county, None)

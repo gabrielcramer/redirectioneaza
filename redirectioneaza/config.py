@@ -19,6 +19,8 @@ This file contains configurations settings for the application
 
 
 from os import environ, path
+from datetime import datetime, date
+
 from .handlers.ssm_parameter_store import SSMParameterStore
 
 ENVIRONMENT = environ.get('ENVIRONMENT', 'DEV')
@@ -94,7 +96,9 @@ DEV = False
 # used to create an array up to the current year
 START_YEAR = 2016
 
-# USER_UPLOADS_FOLDER = 'uploads'
+now = datetime.now()
+DONATION_LIMIT = date(now.year, 7, 31)
+MONTH_NAMES = ['', 'Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie']
 
 DEV_DEPENDECIES_LOCATION = "/bower_components"
 
