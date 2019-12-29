@@ -59,8 +59,6 @@ class GetNgoForm(BaseHandler):
         if not _ngo:
             return abort(404)
 
-        # TODO implement check if form already exists, serve it
-
         # if we have an form created for this ngo, return the url
         if _ngo.form_url:
             return redirect(str(_ngo.form_url))

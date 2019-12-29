@@ -12,8 +12,8 @@ import sendgrid
 from flask_mail import Message
 from sendgrid.helpers.mail import *
 
-from redirectioneaza import mail
-from redirectioneaza.config import DEV, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, DEV
+from redirectioneaza import app
+from redirectioneaza.config import DEV
 from redirectioneaza.contact_data import CONTACT_EMAIL_ADDRESS
 
 
@@ -84,9 +84,9 @@ class EmailManager:
         try:
             client = boto3.client(
                 'ses',
-                region_name=AWS_REGION,
-                aws_access_key_id=AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                region_name=app.config['AWS_REGION'],
+                aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
             )
 
             body = {
@@ -129,7 +129,7 @@ class EmailManager:
 
     @staticmethod
     def send_sendgrid_email(**kwargs):
-        """method used to send an email using the sendgrid API
+        """method used to send an email using the aws ses API
         kwargs:
             receiver
             sender
@@ -183,42 +183,3 @@ class EmailManager:
                     info(content[1])
 
             return True
-
-    @staticmethod
-    def send_flask_email(**kwargs):
-
-        receiver = kwargs.get("receiver")
-        sender = kwargs.get("sender", EmailManager.default_sender)
-        subject = kwargs.get("subject")
-
-        # email content
-        text_template = kwargs.get("text_template")
-        html_template = kwargs.get("html_template", "")
-
-        # we must format the email address in this way
-        receiver_address = "{0} <{1}>".format(receiver["name"], receiver["email"])
-        sender_address = "{0} <{1}>".format(sender["name"], sender["email"])
-
-        try:
-            # create a new email object
-            message = Message(sender=sender_address, recipients=[receiver_address], subject=subject)
-
-            # add the text body
-            message.body = text_template
-
-            if html_template:
-                message.html = html_template
-
-            if DEV:
-                info(message.body)
-
-            # send the email
-            # on dev the email is not actually sent just logged in the terminal
-            mail.send(message)
-
-            return True
-
-        except Exception as e:
-            warning(e)
-
-            return False

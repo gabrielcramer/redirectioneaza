@@ -241,9 +241,13 @@ def create_pdf(person, ong):
         account
     """
 
-    # packet = StringIO.StringIO()
-    # we could also use StringIO
+    # in dev save the file locally
     packet = tempfile.NamedTemporaryFile(mode='w+b', delete=not DEV, dir=f'{abs_path}/storage/')
+
+    # if DEV:
+    # else:
+    #     # in prod use StringIO and create the file
+    #     packet = StringIO.StringIO()
 
     c = canvas.Canvas(packet, A4)
     width, height = A4
@@ -281,9 +285,5 @@ def create_pdf(person, ong):
     # go to the beginning of the file
     packet.seek(0)
     # packet.type = "application/pdf"
-
-    save_file_to_s3(packet, os.path.join(app.config['UPLOAD_FOLDER'], packet.name.split('/')[-1]))
-
-    packet.close()
-
-    return '/storage/' + packet.name.split('/')[-1]
+    
+    return packet

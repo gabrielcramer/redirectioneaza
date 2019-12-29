@@ -6,13 +6,15 @@ from urllib.parse import urlparse
 
 from flask import redirect, render_template, url_for, abort, request, session, jsonify
 
-from redirectioneaza import db
-from redirectioneaza.config import CAPTCHA_PRIVATE_KEY, DEFAULT_NGO_LOGO
+from redirectioneaza import db, app
+from redirectioneaza.config import DEV, DEFAULT_NGO_LOGO
 from redirectioneaza.contact_data import ANAF_OFFICES, LIST_OF_COUNTIES
 from redirectioneaza.handlers.base import BaseHandler
 from redirectioneaza.handlers.captcha import submit
 from redirectioneaza.handlers.pdf import create_pdf
 from redirectioneaza.models import NgoEntity, Donor
+
+from logging import warning, error
 
 """
 Handlers used for ngo 
@@ -165,15 +167,28 @@ class TwoPercentHandler(BaseHandler):
             self.return_error(errors)
             return
 
-        captcha_response = submit(request.form.get('g-recaptcha-response'), CAPTCHA_PRIVATE_KEY, request.remote_addr)
+        captcha_response = submit(request.form.get('g-recaptcha-response'), app.config['CAPTCHA_PRIVATE_KEY'], request.remote_addr)
 
         # if the captcha is not valid return
         if not captcha_response.is_valid:
             errors["fields"].append("codul captcha")
-            self.return_error(errors)
-            return
+            return self.return_error(errors)
 
-        file_url = create_pdf(donor_dict, ngo_data)
+        try:
+            pdf = create_pdf(donor_dict, ngo_data)
+
+            if DEV:
+                file_url = app.config['USER_FORMS'] + pdf.name.split('/')[-1]
+            else:
+                filename = "{0}/{1}".format(app.config['USER_FORMS'], sha1( datetime.datetime.now().isoformat() ).hexdigest())
+                file_url = save_file_to_s3(pdf, filename)
+                # close the file so we delete it locally
+                pdf.close()
+
+        except Exception as e:
+            error(e)
+            errors["server"] = True
+            return self.return_error(errors)
 
         # create the donor and save it
         donor = Donor(
@@ -215,10 +230,7 @@ class TwoPercentHandler(BaseHandler):
     def return_error(self, errors):
 
         if self.is_ajax:
-            self.response.set_status(400)
-            self.response.write(json.dumps(errors))
-
-            return
+            return jsonify(errors), 400
 
         self.template_values["title"] = "Donatie 2%"
         self.template_values["ngo"] = self.ngo
@@ -226,8 +238,8 @@ class TwoPercentHandler(BaseHandler):
         self.template_values["counties"] = LIST_OF_COUNTIES
         self.template_values["errors"] = errors
 
-        for key in self.request.POST:
-            self.template_values[key] = request.form[key]
+        for key in request.form:
+            self.template_values[key] = request.form.get(key)
 
         # render a response
         return render_template(self.template_name, **self.template_values)
@@ -247,8 +259,8 @@ class DonationSucces(BaseHandler):
         self.template_values["donor"] = _donor
         self.template_values["title"] = "Donatie 2% - succes"
 
-        county = _donor.county.lower()
-        self.template_values["anaf"] = ANAF_OFFICES.get(county, None)
+        # county = _donor.county.lower()
+        # self.template_values["anaf"] = ANAF_OFFICES.get(county, None)
 
         # for now, disable showing the ANAF office
         self.template_values["anaf"] = None

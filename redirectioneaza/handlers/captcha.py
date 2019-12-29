@@ -6,9 +6,9 @@ import json
 from urllib.parse import urlencode
 from urllib.request import urlopen, Request
 
-from redirectioneaza.config import *
+from redirectioneaza import app
 
-VERIFY_URL = CAPTCHA_VERIFY_URL
+VERIFY_URL = app.config['CAPTCHA_VERIFY_URL']
 
 
 class RecaptchaResponse(object):

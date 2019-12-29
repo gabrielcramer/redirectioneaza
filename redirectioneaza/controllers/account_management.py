@@ -4,8 +4,7 @@ from flask import url_for, redirect, render_template, request, abort
 from flask_login import login_user, current_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
-from redirectioneaza import login_manager, db
-from redirectioneaza.config import CAPTCHA_PRIVATE_KEY
+from redirectioneaza import app, login_manager, db
 from redirectioneaza.handlers.base import BaseHandler
 from redirectioneaza.handlers.captcha import submit
 from redirectioneaza.models import User
@@ -50,7 +49,7 @@ class LoginHandler(BaseHandler):
             self.template_values["errors"] = "Campul parola nu poate fi gol."
             return render_template(self.template_name, **self.template_values)
 
-        captcha_response = submit(request.form.get('g-recaptcha-response'), CAPTCHA_PRIVATE_KEY, request.remote_addr)
+        captcha_response = submit(request.form.get('g-recaptcha-response'), app.config['CAPTCHA_PRIVATE_KEY'], request.remote_addr)
 
         # if the captcha is not valid return
         if not captcha_response.is_valid:
@@ -118,7 +117,7 @@ class SignupHandler(BaseHandler):
             self.template_values["errors"] = "Campul parola nu poate fi gol."
             return render_template(self.template_name, **self.template_values)
 
-        captcha_response = submit(request.form.get('g-recaptcha-response'), CAPTCHA_PRIVATE_KEY, request.remote_addr)
+        captcha_response = submit(request.form.get('g-recaptcha-response'), app.config['CAPTCHA_PRIVATE_KEY'], request.remote_addr)
 
         # if the captcha is not valid return
         if not captcha_response.is_valid:
@@ -187,7 +186,7 @@ class ForgotPasswordHandler(BaseHandler):
             self.template_values["errors"] = "Campul email nu poate fi gol."
             return render_template(self.template_name, **self.template_values)
 
-        captcha_response = submit(request.form.get('g-recaptcha-response'), CAPTCHA_PRIVATE_KEY, request.remote_addr)
+        captcha_response = submit(request.form.get('g-recaptcha-response'), app.config['CAPTCHA_PRIVATE_KEY'], request.remote_addr)
 
         # if the captcha is not valid return
         if not captcha_response.is_valid:
