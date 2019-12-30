@@ -44,7 +44,6 @@ class AppDevelopmentConfig(AppBaseConfig):
 
     SECRET_KEY = environ.get('APP_SECRET_KEY', b'-~s\xd9\x95\xab\x0b\x85w\xfcDT')
     SECURITY_PASSWORD_SALT = environ.get('SECURITY_PASSWORD_SALT', b'\x07\xa5\xd2#\xb7\xaf\xca^\x0bH\tN')
-    MAIL_SENDGRID_API_KEY = environ.get('SENDGRID_API_KEY')
 
     USER_FORMS = '/storage/'
 

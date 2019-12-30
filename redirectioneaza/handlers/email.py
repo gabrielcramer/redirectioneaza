@@ -19,7 +19,7 @@ from redirectioneaza.contact_data import CONTACT_EMAIL_ADDRESS
 
 class EmailManager:
     default_sender = {
-        "name": "donezsi.eu",
+        "name": "redirectioneaza",
         "email": CONTACT_EMAIL_ADDRESS
     }
 
@@ -48,17 +48,8 @@ class EmailManager:
 
             # if False then the send failed
             if response is False:
-
-                # try sendgrid
-                response = EmailManager.send_sendgrid_email(**kwargs)
-
-                # if this doesn't work either, give up
-                if response is False:
-                    error_message = "Failed to send email: {0}{1}".format(kwargs.get("subject"),
-                                                                          kwargs.get("receiver")["email"])
-                    warning(error_message)
-
-                    return False
+                warning(error_message)
+                return False
 
             return True
 
@@ -125,61 +116,4 @@ class EmailManager:
         else:
             print("Email sent! Message ID:"),
             print(response['MessageId'])
-            return True
-
-    @staticmethod
-    def send_sendgrid_email(**kwargs):
-        """method used to send an email using the aws ses API
-        kwargs:
-            receiver
-            sender
-            subject
-
-            text_template
-            html_template
-        """
-
-        receiver = kwargs.get("receiver")
-        sender = kwargs.get("sender", EmailManager.default_sender)
-        subject = kwargs.get("subject")
-
-        # email content
-        text_template = kwargs.get("text_template")
-        html_template = kwargs.get("html_template", "")
-
-        sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
-
-        sender = Email(sender["email"], sender["name"])
-        receiver = Email(receiver["email"], receiver["name"])
-
-        text_content = Content("text/plain", text_template)
-
-        email = Mail(sender, subject, receiver, text_content)
-
-        if html_template:
-            html_content = Content("text/html", html_template)
-            email.add_content(html_content)
-
-        if not DEV or not kwargs.get("development", True):
-            response = sg.client.mail.send.post(request_body=email.get())
-
-            if response.status_code == 202:
-                return True
-            else:
-
-                warning(response.status_code)
-                warning(response.body)
-
-                return False
-        else:
-            info(email.get()['personalizations'])
-
-            content = email.get()['content']
-
-            if content:
-                info(content[0]['value'])
-
-                if len(content) == 2:
-                    info(content[1])
-
             return True
