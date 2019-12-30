@@ -48,7 +48,7 @@ class EmailManager:
 
             # if False then the send failed
             if response is False:
-                warning(error_message)
+                warning('Could not send email with SES')
                 return False
 
             return True
