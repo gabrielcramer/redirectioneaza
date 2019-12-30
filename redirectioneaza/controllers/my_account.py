@@ -32,7 +32,7 @@ class MyAccountHandler(BaseHandler):
         if user.ngo:
             self.template_values["ngo"] = user.ngo
 
-            self.template_values["ngo_url"] = url_for('asociatia') + '/' + str(user.ngo.url)
+            self.template_values["ngo_url"] = url_for('asociatia', _external=True) + '/' + str(user.ngo.url)
 
             donors = Donor.query.with_entities(Donor.first_name,
                                                Donor.last_name,
@@ -62,6 +62,7 @@ class MyAccountHandler(BaseHandler):
 
             can_donate = not now.date() > DONATION_LIMIT
 
+            self.template_values['limit'] = DONATION_LIMIT
             self.template_values["can_donate"] = can_donate
 
         else:
