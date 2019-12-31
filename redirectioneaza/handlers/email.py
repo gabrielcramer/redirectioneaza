@@ -8,9 +8,7 @@ from logging import info, warning
 
 import boto3
 from botocore.exceptions import ClientError
-import sendgrid
 from flask_mail import Message
-from sendgrid.helpers.mail import *
 
 from redirectioneaza import app
 from redirectioneaza.config import DEV
