@@ -54,15 +54,21 @@ class AppDevelopmentConfig(AppBaseConfig):
 
 class ProdDevelopmentConfig(AppBaseConfig):
 
-    # ssm_store = SSMParameterStore(ttl=10, prefix='/PROD')
+    AWS_ACCESS_KEY_ID = environ.get('ACCESS_KEY', '')
+    AWS_SECRET_ACCESS_KEY = environ.get('SECRET_KEY', '')
+    AWS_REGION = environ.get('AWS_REGION', 'eu-central-1')
 
-    AWS_ACCESS_KEY_ID = ssm_store.get('ACCESS_KEY')
-    AWS_SECRET_ACCESS_KEY = ssm_store.get('SECRET_KEY')
+    client = boto3.client(
+        'ssm',
+        region_name=app.config['AWS_REGION'],
+        aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
+    )
+    ssm_store = SSMParameterStore(ttl=10, prefix='/PROD', ssm_client=client)
 
     CAPTCHA_PUBLIC_KEY = ssm_store.get('CAPTCHA_PUBLIC_KEY')
     CAPTCHA_PRIVATE_KEY = ssm_store.get('CAPTCHA_PRIVATE_KEY')
 
-    AWS_REGION = 'eu-central-1'
     BUCKET_NAME = 'redirectioneaza.code4.ro'
     USER_FORMS = '/documents'
     BUCKET_OBJECT_ACL = "public-read"
