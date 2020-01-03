@@ -41,8 +41,6 @@ class SSMParameterStore(object):
             self.refresh()
         
         abs_key = "%s%s" % (self._prefix, name)
-        print('Keys: ', self._keys)
-        
         if name not in self._keys:
             if 'default' in kwargs:
                 return kwargs['default']
