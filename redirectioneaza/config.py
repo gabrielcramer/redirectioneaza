@@ -20,6 +20,7 @@ This file contains configurations settings for the application
 
 from os import environ, path
 from datetime import datetime, date
+import boto3
 
 from .handlers.ssm_parameter_store import SSMParameterStore
 
