@@ -55,15 +55,15 @@ class AppDevelopmentConfig(AppBaseConfig):
 
 class ProdDevelopmentConfig(AppBaseConfig):
 
-    AWS_ACCESS_KEY_ID = environ.get('ACCESS_KEY', '')
-    AWS_SECRET_ACCESS_KEY = environ.get('SECRET_KEY', '')
+    AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID', '')
+    AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY', '')
     AWS_REGION = environ.get('AWS_REGION', 'eu-central-1')
 
     client = boto3.client(
         'ssm',
-        region_name=app.config['AWS_REGION'],
-        aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
+        region_name=AWS_REGION,
+        aws_access_key_id = AWS_ACCESS_KEY_ID,
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY,
     )
     ssm_store = SSMParameterStore(ttl=10, prefix='/PROD', ssm_client=client)
 
