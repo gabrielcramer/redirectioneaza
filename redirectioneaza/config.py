@@ -80,7 +80,7 @@ class ProdDevelopmentConfig(AppBaseConfig):
     DB_USERNAME = ssm_store.get('DB_USERNAME')
     DB_PASSWORD = ssm_store.get('DB_PASSWORD')
     DB_DBSERVER = ssm_store.get('DB_DBSERVER')
-    DB_DBPORT = ssm_store.get('DB_DBPORT')
+    DB_DBPORT = int(ssm_store.get('DB_DBPORT'))
     DB_DBCATALOG = ssm_store.get('DB_DBCATALOG')
 
     # Set up app configuration
