@@ -65,7 +65,7 @@ class ProdDevelopmentConfig(AppBaseConfig):
         aws_access_key_id = AWS_ACCESS_KEY_ID,
         aws_secret_access_key = AWS_SECRET_ACCESS_KEY,
     )
-    ssm_store = SSMParameterStore(ttl=10, prefix='/PROD', ssm_client=client)
+    ssm_store = SSMParameterStore(ttl=10, ssm_client=client)
 
     CAPTCHA_PUBLIC_KEY = ssm_store.get('/PROD/CAPTCHA_PUBLIC_KEY')
     CAPTCHA_PRIVATE_KEY = ssm_store.get('/PROD/CAPTCHA_PRIVATE_KEY')
