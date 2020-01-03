@@ -61,14 +61,14 @@ class ProdDevelopmentConfig(AppBaseConfig):
 
     client = boto3.client(
         'ssm',
-        region_name=AWS_REGION,
+        region_name = AWS_REGION,
         aws_access_key_id = AWS_ACCESS_KEY_ID,
         aws_secret_access_key = AWS_SECRET_ACCESS_KEY,
     )
-    ssm_store = SSMParameterStore(ttl=10, ssm_client=client)
+    ssm_store = SSMParameterStore(ttl=10, prefix='/PROD', ssm_client=client)
 
-    CAPTCHA_PUBLIC_KEY = ssm_store.get('/PROD/CAPTCHA_PUBLIC_KEY')
-    CAPTCHA_PRIVATE_KEY = ssm_store.get('/PROD/CAPTCHA_PRIVATE_KEY')
+    CAPTCHA_PUBLIC_KEY = ssm_store.get('CAPTCHA_PUBLIC_KEY')
+    CAPTCHA_PRIVATE_KEY = ssm_store.get('CAPTCHA_PRIVATE_KEY')
 
     BUCKET_NAME = 'redirectioneaza.code4.ro'
     USER_FORMS = '/documents'
@@ -77,11 +77,11 @@ class ProdDevelopmentConfig(AppBaseConfig):
     CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
     CAPTCHA_POST_PARAM = "g-recaptcha-response"
 
-    DB_USERNAME = ssm_store.get('/PROD/DB_USERNAME')
-    DB_PASSWORD = ssm_store.get('/PROD/DB_PASSWORD')
-    DB_DBSERVER = ssm_store.get('/PROD/DB_DBSERVER')
-    DB_DBPORT = ssm_store.get('/PROD/DB_DBPORT')
-    DB_DBCATALOG = ssm_store.get('/PROD/DB_DBCATALOG')
+    DB_USERNAME = ssm_store.get('DB_USERNAME')
+    DB_PASSWORD = ssm_store.get('DB_PASSWORD')
+    DB_DBSERVER = ssm_store.get('DB_DBSERVER')
+    DB_DBPORT = ssm_store.get('DB_DBPORT')
+    DB_DBCATALOG = ssm_store.get('DB_DBCATALOG')
 
     # Set up app configuration
     SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_DBSERVER}:{DB_DBPORT}/{DB_DBCATALOG}'
